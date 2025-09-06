@@ -16,7 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from .custom_site import custom_site
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    #在同一套后台管理的逻辑上分化出对后台管理的不同功能
+    path('super_admin/', admin.site.urls),
+    path('admin/', custom_site.urls),
 ]

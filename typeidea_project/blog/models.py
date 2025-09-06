@@ -9,13 +9,16 @@ class Category(models.Model):
         (STATUS_NORMAL, '正常'),
         (STATUS_DELETE, '删除'),
     )
-    name = models.CharField(max_length=50, verbose_name='名称'),
+
+    name = models.CharField(max_length=50, verbose_name='名称')
     status = models.PositiveBigIntegerField(default=STATUS_NORMAL,
                                             choices=STATUS_ITEMS, verbose_name='状态') #用于存储大的正整数(0到9223372036854775807)，通过不同的数值表示不同的状态
     is_nav = models.BooleanField(default=False, verbose_name='是否为导航')  #BooleanField，用于存储布尔值，在数据库中会被映射为布尔类型或小整形，用于标记状态等
     owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE)#当用户被删除时，创建的分类自动被删除
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-
+    def __str__(self):
+        return self.name
+    
     class Meta:
         verbose_name = verbose_name_plural = '分类' #为Model类添加属性
 
@@ -33,6 +36,8 @@ class Tag(models.Model):
     owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE) #当用户被删除时，创建的标签自动被删除
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
 
+    def __str__(self):
+        return self.name
     class Meta:
         verbose_name = verbose_name_plural = '标签' 
 
@@ -54,7 +59,8 @@ class Post(models.Model):
     tag = models.ForeignKey(Tag, verbose_name='标签', on_delete=models.PROTECT)
     owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.SET_NULL, null=True) #删除作者时，将该文章的作者设为null
     created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-
+    def __str__(self):
+        return self.title
     class Meta:
         verbose_name = verbose_name_plural = '文章'
         ordering = ['-id'] #根据id进行降序排列
