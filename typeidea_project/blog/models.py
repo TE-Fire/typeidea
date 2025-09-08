@@ -21,6 +21,21 @@ class Category(models.Model):
     
     class Meta:
         verbose_name = verbose_name_plural = '分类' #为Model类添加属性
+    
+    @classmethod
+    def get_navs(cls):
+        categoryies = cls.objects.filter(status=cls.STATUS_NORMAL)
+        nav_categories = [] #可以作为导航的分量
+        normal_categories  = [] #不可以作为导航的分类
+        for cate in categoryies:
+            if cate.is_nav:
+                nav_categories.append(cate)
+            else:
+                normal_categories .append(cate)
+        return{
+            'navs' : nav_categories,
+            'categoryies' : normal_categories ,
+        }
 
 class Tag(models.Model):
     STATUS_NORMAL = 1
@@ -50,6 +65,9 @@ class Post(models.Model):
         (STATUS_DELETE, '删除'),
         (STATUS_DRAFT, '草稿'),
     )
+    #获取最热文章
+    pv = models.PositiveIntegerField(default=1)
+    uv = models.PositiveIntegerField(default=1)
     title = models.CharField(max_length=255, verbose_name='标题')
     desc = models.CharField(max_length=1024, blank=True, verbose_name='摘要')
     content = models.TextField(verbose_name='正文', help_text='正文必须为MarkDown格式')
@@ -64,3 +82,37 @@ class Post(models.Model):
     class Meta:
         verbose_name = verbose_name_plural = '文章'
         ordering = ['-id'] #根据id进行降序排列
+
+    @staticmethod
+    def get_by_tag(tag_id):
+        try:
+            tag = Tag.objects.get(id=tag_id)
+        except Tag.DoesNotExist:
+            print('tag不存在') 
+            post_list = [ ]
+        else:
+            post_list = tag.post_set.filter(status=Post.STATUS_NORMAL).select_related('category', 'owner')
+
+        return post_list, tag
+
+    @staticmethod #不需要self和cls参数，不能访问类或实例属性，逻辑上属于普通函数
+    def get_by_category(category_id):
+        try:
+            category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            category = None
+            post_list = [ ]
+        else:
+            post_list = category.post_set.filter(status=Post.STATUS_NORMAL).select_related('category', 'owner')
+        
+        return post_list, category
+    
+    @classmethod #cls参数表示类本身
+    def latest_posts(cls):
+        return cls.objects.filter(status=cls.STATUS_NORMAL)
+    
+    @classmethod
+    def hot_posts(cls):
+        return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv')
+    
+    

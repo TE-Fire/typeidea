@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.template.loader import render_to_string
 
 # Create your models here.
 class Link(models.Model):
@@ -30,12 +31,17 @@ class SideBar(models.Model):
         (STATUS_SHOW, '展示'),
         (STATUS_HIDE, '隐藏'),
     )
+    DISPLAY_TYPE_HTML = 1
+    DISPLAY_TYPE_LATEST = 2
+    DISPLAY_TYPE_HOT = 3
+    DISPLAY_TYPE_COMMENT = 4
     SIDE_TYPE = (
-        (1, 'HTML'),
-        (2, '最新文章'),
-        (3, '最热文章'),
-        (4, '最新评论'),
+        (DISPLAY_TYPE_HTML, 'HTML'),
+        (DISPLAY_TYPE_LATEST, '最新文章'),
+        (DISPLAY_TYPE_HOT, '最热文章'),
+        (DISPLAY_TYPE_COMMENT, '最新评论'),
     )
+
     title = models.CharField(max_length=50, verbose_name='标题')
     display_type = models.PositiveIntegerField(default=1, choices=SIDE_TYPE,
                                                verbose_name='展示类型')
@@ -49,3 +55,36 @@ class SideBar(models.Model):
         return self.title
     class Meta:
         verbose_name = verbose_name_plural = '侧边栏'    
+    
+    #由于侧边栏的展示类型有HTML、最新文章、最热文章、最新评论
+    #所以需要根据不同的展示类型，获取不同的数据，所以从model层获取数据，直接渲染到模板
+    @property #@property 是Python的一个内置装饰器，用于将一个方法转换为属性访问方式。{{ sidebar.content_html }}，这是最直观的体现方式
+    def content_html(self):
+        """直接渲染模版"""
+        from blog.models import Post #避免循环引用
+        from comment.models import Comment
+
+        result = ''
+        if self.display_type == self.DISPLAY_TYPE_HTML:
+            result = self.content
+        elif self.display_type == self.DISPLAY_TYPE_LATEST:
+            context = {
+                'posts' : Post.latest_posts()
+            }
+            result = render_to_string('config/blocks/sidebar_posts.html', context)
+        elif self.display_type == self.DISPLAY_TYPE_HOT:
+            context = {
+                'posts' : Post.hot_posts()
+            }
+            result = render_to_string('config/blocks/sidebar_posts.html', context)
+        elif self.display_type == self.DISPLAY_TYPE_COMMENT:
+            context = {
+                'comments' : Comment.objects.filter(status=Comment.STATUS_NORMAL)
+            }
+            result = render_to_string('config/blocks/sidebar_comments.html', context)
+        return result
+    
+    #获取侧边栏的所有数据
+    @classmethod
+    def get_all(cls):
+        return cls.objects.filter(status=cls.STATUS_SHOW)

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}首页{% endblock %}- typeidea博客系统</title>
+    <style>
+    /* 页面标题样式 */
+    .page-header {
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .page-header h2 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    
+    .page-header p {
+        margin: 0;
+        color: #666;
+        font-size: 16px;
+    }
+    
+    /* 文章列表样式 */
+    .post-list {
+        margin-bottom: 40px;
+    }
+    
+    .post-item {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #eaeaea;
+        border-radius: 5px;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .post-item:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .post-title {
+        margin: 0 0 15px 0;
+    }
+    
+    .post-title a {
+        color: #333;
+        text-decoration: none;
+        font-size: 22px;
+    }
+    
+    .post-title a:hover {
+        color: #1e88e5;
+    }
+    
+    .post-meta {
+        margin-bottom: 15px;
+        font-size: 14px;
+        color: #777;
+    }
+    
+    .post-meta span {
+        margin-right: 15px;
+    }
+    
+    .post-excerpt {
+        margin-bottom: 15px;
+        color: #555;
+        line-height: 1.6;
+    }
+    
+    .read-more-btn {
+        display: inline-block;
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        color: #495057;
+        text-decoration: none;
+        border-radius: 3px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .read-more-btn:hover {
+        background-color: #e9ecef;
+        color: #1e88e5;
+    }
+    
+    .no-posts {
+        text-align: center;
+        padding: 40px;
+        color: #777;
+        font-style: italic;
+    }
+    
+    /* 分页样式 */
+    .pagination {
+        margin: 40px 0;
+        text-align: center;
+    }
+    
+    .pagination-link, .pagination-current {
+        display: inline-block;
+        padding: 8px 12px;
+        margin: 0 5px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        text-decoration: none;
+        color: #337ab7;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination-current {
+        background-color: #337ab7;
+        color: white;
+        border-color: #337ab7;
+    }
+    
+    .pagination-link:hover {
+        background-color: #eee;
+        color: #23527c;
+    }
+    
+    .pagination-first, .pagination-last {
+        font-weight: bold;
+    }
+    
+    .pagination-prev, .pagination-next {
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+    <div>顶部分类:
+        {% for cate in navs %}
+            <a href="{% url 'category-list' cate.id %}">{{ cate.name }}</a>
+        {% endfor %}
+    </div>
+    <hr>
+    {% block main %} <!--这是主内容区，子模板会加载到这-->
+    {% endblock %}
+
+    <hr>
+    <div>底部分类:
+        {% for cate in categories %}  <!-- 使用正确的变量名 -->
+            <a href="{% url 'category-list' cate.id %}">{{ cate.name }}</a>
+        {% empty %}
+            <span>暂无底部分类</span>
+        {% endfor %}
+    </div>
+
+    <hr>
+    <div>侧边栏展示:
+        {% for sidebar in sidebars%}
+            <h4>{{ sidebar.title }}</h4>
+            {{ sidebar.content_html }}
+        {% endfor %}
+    </div>
+</body>
+</html>

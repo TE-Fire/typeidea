@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'blog',
     'config',
     'comment',
+    'typeidea_project',
 ]
 
 MIDDLEWARE = [
