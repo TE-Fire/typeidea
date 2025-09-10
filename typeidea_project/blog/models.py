@@ -34,7 +34,7 @@ class Category(models.Model):
                 normal_categories .append(cate)
         return{
             'navs' : nav_categories,
-            'categoryies' : normal_categories ,
+            'categories' : normal_categories ,
         }
 
 class Tag(models.Model):
@@ -115,4 +115,6 @@ class Post(models.Model):
     def hot_posts(cls):
         return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv')
     
-    
+
+
+

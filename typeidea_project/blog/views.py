@@ -12,12 +12,17 @@ class CommonViewMixin:
         context.update({
             'sidebars': SideBar.get_all(),
         })
-        context.update(Category.get_navs())
+        # 获取分类数据并更新上下文
+        nav_data = Category.get_navs()
+        context.update(nav_data)
+        # 确保有 navs 和 categories 变量
+        context['navs'] = nav_data.get('navs', [])
+        context['categories'] = nav_data.get('categories', [])
         return context
 
 class IndexView(CommonViewMixin, ListView):  # 修复继承顺序
     model = Post
-    paginate_by = 1
+    paginate_by = 10
     context_object_name = 'post_list'
     template_name = 'blog/list.html'
     
